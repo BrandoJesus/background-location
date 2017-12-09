@@ -13,8 +13,7 @@ export class HomePage {
 
   constructor(
     private backgroundGeolocation: BackgroundGeolocation
-  ) {
-  }
+  ) {}
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad HomePage');
