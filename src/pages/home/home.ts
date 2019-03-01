@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, NgZone } from '@angular/core';
 import { IonicPage } from 'ionic-angular';
-import { BackgroundGeolocation, BackgroundGeolocationConfig, BackgroundGeolocationResponse } from '@ionic-native/background-geolocation';
+import { BackgroundGeolocation, BackgroundGeolocationConfig, BackgroundGeolocationResponse, 
+  BackgroundGeolocationCurrentPositionConfig } from '@ionic-native/background-geolocation';
 
 @IonicPage()
 @Component({
@@ -10,9 +11,10 @@ import { BackgroundGeolocation, BackgroundGeolocationConfig, BackgroundGeolocati
 export class HomePage {
 
   logs: string[] = [];
+  intervalo: any;
 
   constructor(
-    private backgroundGeolocation: BackgroundGeolocation
+    private backgroundGeolocation: BackgroundGeolocation, public zone: NgZone
   ) {}
 
   ionViewDidLoad() {
@@ -20,54 +22,57 @@ export class HomePage {
   }
 
   startBackgroundGeolocation(){
-    this.backgroundGeolocation.isLocationEnabled()
-    .then((rta) =>{
-      if(rta){
-        this.start();
-      }else {
-        this.backgroundGeolocation.showLocationSettings();
-      }
-    })
+    console.log('this.backgroundGeolocation ', this.backgroundGeolocation);
+
+    this.backgroundGeolocation.checkStatus().then((status) =>{
+      // alert('isRunning '+ status.isRunning);
+      alert('locationServicesEnabled '+ status.locationServicesEnabled);
+      console.log('status ', status);
+
+      if(status.locationServicesEnabled) this.interval();
+      else this.backgroundGeolocation.showLocationSettings(); 
+    });
   }
 
-  start(){
-
+  start(){    
+    // Background Tracking
     const config: BackgroundGeolocationConfig = {
       desiredAccuracy: 10,
-      stationaryRadius: 1,
-      distanceFilter: 1,
-      debug: true,
+      stationaryRadius: 20,
+      distanceFilter: 30,
+      // debug: true,
       stopOnTerminate: false,
+      stopOnStillActivity: false,
       // Android only section
       locationProvider: 1, // https://github.com/mauron85/cordova-plugin-background-geolocation/blob/master/PROVIDERS.md
-      startForeground: true,
       interval: 6000,
       fastestInterval: 5000,
       activitiesInterval: 10000,
-      notificationTitle: 'Background tracking',
-      notificationText: 'enabled',
+      notificationsEnabled: true,
+      notificationTitle: 'Tracking Motorizado',
+      notificationText: 'Habilitado',
       notificationIconColor: '#FEDD1E',
       notificationIconLarge: 'mappointer_large',
       notificationIconSmall: 'mappointer_small'
     };
+    this.backgroundGeolocation.configure(config);
 
-    console.log('start');
-
-    this.backgroundGeolocation
-    .configure(config)
-    .subscribe((location: BackgroundGeolocationResponse) => {
+    this.backgroundGeolocation.getCurrentLocation()
+    .then((location: BackgroundGeolocationResponse) => {
       console.log(location);
-      this.logs.push(`${location.latitude},${location.longitude}`);
+      this.zone.run( () => {
+        // alert(location.latitude + ' , ' + location.longitude);
+        this.logs.push(`${location.latitude},${location.longitude}`);
+      });
+      
     }, (error) => {
-        alert(error.code + ' - ' + error.message);
+        console.log(error.code + ' - ' + error.message);
     });
 
     this.backgroundGeolocation.getLocations()
     .then((locations) => {
-      
-      alert('locations ' + locations);
-      locations.forEach(location => {
-        alert(location.latitude + ' , ' + location.longitude);
+      locations.forEach(l => {
+        // alert(l.latitude + ' , ' + l.longitude);
       });
       console.log(locations);
     }, (error) => {
@@ -76,11 +81,19 @@ export class HomePage {
 
     // start recording location
     this.backgroundGeolocation.start();
+  } 
 
+  interval() {
+    this.intervalo = setInterval(() => {
+      this.start();
+    }, 3000);
+    // alert('intervalo ' + this.intervalo);  
   }
 
   stopBackgroundGeolocation(){
     this.backgroundGeolocation.stop();
+    clearInterval(this.intervalo);
+    this.logs = [];
   }
 
 }

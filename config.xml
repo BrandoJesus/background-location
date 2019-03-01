@@ -81,8 +81,11 @@
     <plugin name="cordova-plugin-device" spec="1.1.4" />
     <plugin name="cordova-plugin-splashscreen" spec="~4.0.1" />
     <plugin name="cordova-plugin-ionic-webview" spec="^1.1.11" />
-    <plugin name="cordova-plugin-mauron85-background-geolocation" spec="^2.3.3">
-        <variable name="GOOGLE_PLAY_SERVICES_VERSION" value="11.0.1" />
+    <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application" />
+    <plugin name="cordova-plugin-statusbar" spec="2.4.2" />
+    <plugin name="cordova-plugin-mauron85-background-geolocation" spec="^3.0.0-alpha.50">
+        <variable name="GOOGLE_PLAY_SERVICES_VERSION" value="11+" />
+        <variable name="ANDROID_SUPPORT_LIBRARY_VERSION" value="26+" />
         <variable name="ICON" value="@mipmap/icon" />
         <variable name="SMALL_ICON" value="@mipmap/icon" />
         <variable name="ACCOUNT_NAME" value="@string/app_name" />
@@ -90,6 +93,6 @@
         <variable name="ACCOUNT_TYPE" value="$PACKAGE_NAME.account" />
         <variable name="CONTENT_AUTHORITY" value="$PACKAGE_NAME" />
     </plugin>
-    <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application" />
-    <engine name="android" spec="~6.4.0" />
+    <engine name="android" spec="^8.0.0" />
+    <engine name="browser" spec="5.0.4" />
 </widget>
