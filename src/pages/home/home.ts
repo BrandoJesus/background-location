@@ -58,6 +58,20 @@ export class HomePage {
     .subscribe((location: BackgroundGeolocationResponse) => {
       console.log(location);
       this.logs.push(`${location.latitude},${location.longitude}`);
+    }, (error) => {
+        alert(error.code + ' - ' + error.message);
+    });
+
+    this.backgroundGeolocation.getLocations()
+    .then((locations) => {
+      
+      alert('locations ' + locations);
+      locations.forEach(location => {
+        alert(location.latitude + ' , ' + location.longitude);
+      });
+      console.log(locations);
+    }, (error) => {
+      alert(error.code + ' - ' + error.message);
     });
 
     // start recording location
